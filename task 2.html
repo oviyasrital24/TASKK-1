@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spotify Mini Player</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+:root{
+  --bg:#121212;
+  --card:#181818;
+  --text:#fff;
+  --sub:#aaa;
+  --accent:#1DB954;
+}
+.light{
+  --bg:#f4f4f4;
+  --card:#fff;
+  --text:#000;
+  --sub:#555;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,sans-serif;}
+body{background:var(--bg);color:var(--text);transition:.4s}
+
+/* Layout */
+.app{display:flex;min-height:100vh;padding-bottom:160px}
+
+/* Sidebar */
+.sidebar{
+  width:240px;
+  background:#000;
+  padding:20px;
+}
+.sidebar h3{color:var(--accent);margin-bottom:15px}
+.track{
+  padding:10px;
+  color:#aaa;
+  cursor:pointer;
+  border-radius:6px;
+}
+.track:hover{background:#222;color:white}
+
+/* Main */
+.main{flex:1;padding:20px}
+.albums{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:25px;
+}
+.album{
+  background:var(--card);
+  padding:15px;
+  border-radius:15px;
+  cursor:pointer;
+  transition:.3s;
+}
+.album:hover{
+  transform:translateY(-6px);
+  box-shadow:0 15px 35px rgba(29,185,84,.4);
+}
+.album img{
+  width:100%;
+  border-radius:12px;
+}
+.album p{color:var(--sub);font-size:13px}
+
+/* Album Page */
+.album-page{display:none}
+.album-page img{width:220px;border-radius:15px}
+.album-page button{
+  margin-top:15px;
+  padding:8px 18px;
+  background:var(--accent);
+  border:none;
+  color:white;
+  border-radius:20px;
+  cursor:pointer;
+}
+
+/* Player */
+.player{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:rgba(0,0,0,.75);
+  backdrop-filter:blur(10px);
+  padding:15px 25px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+/* Info */
+.info{display:flex;align-items:center;gap:12px}
+.info img{width:55px;border-radius:8px}
+
+/* Controls */
+.controls{text-align:center}
+.controls i{
+  font-size:22px;
+  margin:0 14px;
+  cursor:pointer;
+}
+.controls i:hover{color:var(--accent)}
+
+/* Progress */
+.progress{
+  width:300px;
+  height:6px;
+  background:#333;
+  border-radius:10px;
+  cursor:pointer;
+  margin:6px auto;
+}
+.bar{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,var(--accent),#1ed760);
+  border-radius:10px;
+}
+
+/* Time */
+.time{font-size:12px;color:var(--sub)}
+
+/* Equalizer */
+.equalizer{display:flex;gap:4px;justify-content:center;margin-top:5px}
+.eq{
+  width:4px;height:8px;background:var(--accent);
+  animation:beat 1s infinite;
+  animation-play-state:paused;
+}
+.eq:nth-child(2){animation-delay:.2s}
+.eq:nth-child(3){animation-delay:.4s}
+
+@keyframes beat{
+  0%{height:6px}
+  50%{height:22px}
+  100%{height:6px}
+}
+
+/* Header */
+header{
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+}
+.toggle{cursor:pointer;font-size:20px}
+
+/* Responsive */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .progress{width:180px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2 style="color:var(--accent)">
+    <i class="fa-brands fa-spotify"></i> Spotify
+  </h2>
+  <div class="toggle" onclick="toggleMode()">
+    <i class="fa-solid fa-circle-half-stroke"></i>
+  </div>
+</header>
+
+<div class="app">
+
+<!-- Playlist Sidebar -->
+<div class="sidebar">
+  <h3>Playlist</h3>
+  <div class="track" onclick="playSong(0)">Blinding Lights</div>
+  <div class="track" onclick="playSong(1)">Shape of You</div>
+  <div class="track" onclick="playSong(2)">Perfect</div>
+  <div class="track" onclick="playSong(3)">Heat Waves</div>
+  <div class="track" onclick="playSong(4)">Levitating</div>
+  <div class="track" onclick="playSong(5)">Believer</div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Albums Grid -->
+  <div class="albums" id="albums">
+    <div class="album" onclick="openAlbum(0)">
+      <img src="images/blinding.jpg">
+      <h3>Blinding Lights</h3>
+      <p>The Weeknd</p>
+    </div>
+
+    <div class="album" onclick="openAlbum(1)">
+      <img src="images/shape.jpg">
+      <h3>Shape of You</h3>
+      <p>Ed Sheeran</p>
+    </div>
+
+    <div class="album" onclick="openAlbum(2)">
+      <img src="images/perfect.jpg">
+      <h3>Perfect</h3>
+      <p>Ed Sheeran</p>
+    </div>
+
+    <div class="album" onclick="openAlbum(3)">
+      <img src="images/heatwaves.jpg">
+      <h3>Heat Waves</h3>
+      <p>Glass Animals</p>
+    </div>
+
+    <div class="album" onclick="openAlbum(4)">
+      <img src="images/levitating.jpg">
+      <h3>Levitating</h3>
+      <p>Dua Lipa</p>
+    </div>
+
+    <div class="album" onclick="openAlbum(5)">
+      <img src="images/beliver.jpg">
+      <h3>Believer</h3>
+      <p>Imagine Dragons</p>
+    </div>
+  </div>
+
+  <!-- Album Page -->
+  <div class="album-page" id="albumPage">
+    <img id="albumImg">
+    <h2 id="albumTitle"></h2>
+    <button onclick="playSong(current)">▶ Play</button><br><br>
+    <button onclick="closeAlbum()">⬅ Back</button>
+  </div>
+
+</div>
+</div>
+
+<!-- Player -->
+<div class="player">
+  <div class="info">
+    <img id="cover">
+    <div>
+      <small style="color:var(--accent)">NOW PLAYING</small><br>
+      <strong id="title">Select a song</strong>
+    </div>
+  </div>
+
+  <div class="controls">
+    <i class="fa-solid fa-backward" onclick="prevSong()"></i>
+    <i class="fa-solid fa-play" id="playBtn" onclick="togglePlay()"></i>
+    <i class="fa-solid fa-forward" onclick="nextSong()"></i>
+
+    <div class="progress" onclick="seek(event)">
+      <div class="bar" id="bar"></div>
+    </div>
+
+    <div class="time">
+      <span id="current">0:00</span> / <span id="duration">0:00</span>
+    </div>
+
+    <div class="equalizer">
+      <div class="eq"></div><div class="eq"></div><div class="eq"></div>
+    </div>
+  </div>
+
+  <div>
+    <input type="range" min="0" max="1" step="0.01"
+           onchange="audio.volume=this.value">
+  </div>
+</div>
+
+<audio id="audio"></audio>
+
+<script>
+const songs=[
+ {name:"Blinding Lights",artist:"The Weeknd",src:"songs/song1.mp3",cover:"images/blinding.jpg"},
+ {name:"Shape of You",artist:"Ed Sheeran",src:"songs/song2.mp3",cover:"images/shape.jpg"},
+ {name:"Perfect",artist:"Ed Sheeran",src:"songs/song3.mp3",cover:"images/perfect.jpg"},
+ {name:"Heat Waves",artist:"Glass Animals",src:"songs/song4.mp3",cover:"images/heatwaves.jpg"},
+ {name:"Levitating",artist:"Dua Lipa",src:"songs/song5.mp3",cover:"images/levitating.jpg"},
+ {name:"Believer",artist:"Imagine Dragons",src:"songs/song6.mp3",cover:"images/beliver.jpg"}
+];
+
+let current=0,isPlaying=false;
+const audio=document.getElementById("audio");
+const title=document.getElementById("title");
+const cover=document.getElementById("cover");
+const playBtn=document.getElementById("playBtn");
+const bar=document.getElementById("bar");
+const currentTimeEl=document.getElementById("current");
+const durationEl=document.getElementById("duration");
+const eq=document.querySelectorAll(".eq");
+
+function playSong(i){
+ current=i;
+ audio.src=songs[i].src;
+ title.innerText=songs[i].name+" – "+songs[i].artist;
+ cover.src=songs[i].cover;
+ audio.play();
+ isPlaying=true;
+ playBtn.className="fa-solid fa-pause";
+ eq.forEach(e=>e.style.animationPlayState="running");
+}
+
+function togglePlay(){
+ if(!audio.src) return;
+ isPlaying?audio.pause():audio.play();
+ playBtn.className=isPlaying?"fa-solid fa-play":"fa-solid fa-pause";
+ eq.forEach(e=>e.style.animationPlayState=isPlaying?"paused":"running");
+ isPlaying=!isPlaying;
+}
+function nextSong(){playSong((current+1)%songs.length)}
+function prevSong(){playSong((current-1+songs.length)%songs.length)}
+
+audio.addEventListener("timeupdate",()=>{
+ bar.style.width=(audio.currentTime/audio.duration)*100+"%";
+ currentTimeEl.innerText=format(audio.currentTime);
+ durationEl.innerText=format(audio.duration);
+});
+
+function seek(e){
+ audio.currentTime=(e.offsetX/e.currentTarget.clientWidth)*audio.duration;
+}
+function format(t){
+ if(isNaN(t)) return "0:00";
+ return Math.floor(t/60)+":"+String(Math.floor(t%60)).padStart(2,"0");
+}
+
+/* Album Page */
+function openAlbum(i){
+ document.getElementById("albums").style.display="none";
+ document.getElementById("albumPage").style.display="block";
+ document.getElementById("albumImg").src=songs[i].cover;
+ document.getElementById("albumTitle").innerText=songs[i].name;
+ current=i;
+}
+function closeAlbum(){
+ document.getElementById("albums").style.display="grid";
+ document.getElementById("albumPage").style.display="none";
+}
+
+/* Theme */
+function toggleMode(){
+ document.body.classList.toggle("light");
+}
+</script>
+
+</body>
+</html>
